@@ -1,0 +1,31 @@
+# Workflow that runs on every push.
+# Sanity check to make sure act commands are running
+
+name: Run-act-commands
+
+on:
+  push:
+
+jobs:
+  run-act:
+    runs-on:
+      ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup act
+        run: |
+          cd /
+          curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+          act --version
+
+      - name: run-act-script
+        run: |
+          act --version
+          ./act_run.sh
+
+      - name: run-act
+        run: act
+  
