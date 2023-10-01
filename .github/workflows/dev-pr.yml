@@ -26,3 +26,6 @@ jobs:
           cat awesome-app.txt
           echo "Printing some ENV Vars for testing"
           echo "Github actor: ${GITHUB_ACTOR}"
+          echo "HEAD: ${{ github.head_ref }}"
+          echo "BASE: ${{ github.base_ref }}"
+
