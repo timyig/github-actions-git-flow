@@ -1,0 +1,28 @@
+# Workflow that runs on PR with dev as base
+
+name: Pull-Request-dev
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on:
+      ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          echo "Building ..."
+          echo "Hello World!" > awesome-app.txt
+
+      - name: Test
+        run: |
+          echo "Testing ..."
+          cat awesome-app.txt
+          echo "Printing some ENV Vars for testing"
+          echo "Github actor: ${GITHUB_ACTOR}"
