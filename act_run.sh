@@ -1,0 +1,2 @@
+act --list
+act --dryrun
