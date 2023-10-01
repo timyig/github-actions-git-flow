@@ -28,4 +28,3 @@ jobs:
           echo "Github actor: ${GITHUB_ACTOR}"
           echo "HEAD: ${{ github.head_ref }}"
           echo "BASE: ${{ github.base_ref }}"
-

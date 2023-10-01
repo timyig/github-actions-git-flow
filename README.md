@@ -19,7 +19,7 @@ https://nvie.com/posts/a-successful-git-branching-model/
   * When commit is tagged open PR into main
 * feat
   * Feature branches
-  
+
 ### Settings in Github
 
 * [ ] Settings -> Pull Requests

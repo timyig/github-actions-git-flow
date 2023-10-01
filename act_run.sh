@@ -5,7 +5,8 @@ act --list
 if [$ACT = false] ; then
     act --dryrun
 fi
-printenv | grep ACT
+act --dryrun
+act --workflows .github/workflows/dev-pr.yml --actor timyig
 
 # Testing triggers
 echo "🧪🧪🧪 Testing Triggers 🧪🧪🧪"
