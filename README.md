@@ -20,9 +20,19 @@ https://nvie.com/posts/a-successful-git-branching-model/
 * feat
   * Feature branches
   
-### ToDos
+### Settings in Github
 
-* [ ] Build, Test, Push on PR to `dev`
-  * [ ] Get tag the image
-* [ ] Trigger PR into main when commit is tagged in `dev`
-* [ ] On PR opened in main, pull, tag and push image
+* [ ] Settings -> Pull Requests
+  * Always suggest updating pull request branches
+  * Allow auto-merge
+* [ ] Settings ->  
+  Actions -> General -> 
+  * Fork pull request workflows from outside collaborators -> Require approval for all outside collaborators
+  * Workflow permissions - > Read repository contents and packages permissions
+  * Allow GitHub Actions to create and approve pull requests
+* [ ] Settings ->  
+  * Branches -> Branch protection rule -> 
+  * Require a pull request before merging
+  * Require status checks to pass before merging
+  * Require branches to be up to date before merging
+  * ⚠️ Status check will only show up if the Workflow file is in the default branch
