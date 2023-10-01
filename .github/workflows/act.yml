@@ -26,6 +26,4 @@ jobs:
           act --version
           ./act_run.sh
 
-      - name: run-act
-        run: act
   
