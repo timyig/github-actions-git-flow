@@ -24,3 +24,5 @@ jobs:
         run: |
           echo "Testing ..."
           cat awesome-app.txt
+          echo "Printing some ENV Vars for testing"
+          echo "Github actor: ${GITHUB_ACTOR}"
