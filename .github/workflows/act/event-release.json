@@ -1,0 +1,10 @@
+{
+    "push": {
+      "head": {
+        "ref": "release-sample-head-ref"
+      },
+      "base": {
+        "ref": "sample-base-ref"
+      }
+    }
+  }
