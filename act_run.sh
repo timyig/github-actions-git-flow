@@ -2,10 +2,10 @@
 echo "🧪🧪🧪 Sanity Check 🧪🧪🧪"
 act --list
 # Not running this in ACT as this is causing an error
-if [$ACT = false] ; then
+if [ "$ACT" != true ]; then
     act --dryrun
 fi
-act --dryrun
+
 act --workflows .github/workflows/dev-pr.yml --actor timyig
 
 # Testing triggers
