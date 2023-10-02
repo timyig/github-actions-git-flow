@@ -36,3 +36,4 @@ https://nvie.com/posts/a-successful-git-branching-model/
   * Require status checks to pass before merging
   * Require branches to be up to date before merging
   * ⚠️ Status check will only show up if the Workflow file is in the default branch
+  * Do not allow bypassing the above settings
