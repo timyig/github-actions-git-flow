@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - 'release-v*'
+  pull_request:
 
 jobs:
   release-flow:
@@ -18,19 +19,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Bump version
-        run: |
-          echo "Running BumpVerion script"
 
-      - name: Build
+      - name: Get release version
         run: |
-          echo "Building ..."
-          echo "Hello World!" > awesome-app.txt
+          RELEASE_VERSION=$(echo "$GITHUB_REF" | sed 's/refs\/heads\/release-//')
+          echo "Release version: ${RELEASE_VERSION}"
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
 
       - name: Test
         run: |
-          echo "Testing ..."
-          cat awesome-app.txt
           echo "Printing some ENV Vars for testing"
           echo "Github ref -------------------"
           echo "GITHUB_REF: ${{ github.ref }}"
@@ -48,18 +45,10 @@ jobs:
           echo "GITHUB_ACTION: ${{ github.action }}"
           echo "GITHUB_ACTOR: ${{ github.actor }}"
           echo "GITHUB_ACTOR_ID: ${{ github.actor_id }}"
-          echo "GITHUB_API_URL: ${{ github.api_url }}"
           echo "GITHUB_JOB: ${{ github.job }}"
           echo "GITHUB_RUN_ID: ${{ github.run_id }}"
           echo "GITHUB_RUN_NUMBER: ${{ github.run_number }}"
           echo "GITHUB_SHA: ${{ github.sha }}"
           echo "GITHUB_WORKFLOW: ${{ github.workflow }}"
           echo "GITHUB_ENV: ${{ github.env }}"
-
-      - name: Publish
-        run: |
-          echo "Publish release"
-
-      - name: Tag and open PR
-        run: |
-          echo "Tag and Open PR"
+          echo "Release version: $RELEASE_VERSION"
