@@ -1,0 +1,54 @@
+# Runs the release workflow when a release-* branch is pushed
+# - Bump version
+# - Build -> Test -> Publish
+# Tag -> Open PR to main - Push
+
+name: Create Release
+
+on:
+  push:
+    branches:
+      - 'release-v*'
+  pull_request:
+
+jobs:
+  release-flow:
+    runs-on:
+      ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get release version
+        run: |
+          RELEASE_VERSION=$(echo "$GITHUB_REF" | sed 's/refs\/heads\/release-//')
+          echo "Release version: ${RELEASE_VERSION}"
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+
+      - name: Test
+        run: |
+          echo "Printing some ENV Vars for testing"
+          echo "Github ref -------------------"
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
+          echo "GITHUB_REF_TYPE: ${{ github.ref_type }}"
+          echo "GITHUB_HEAD_REF: ${{ github.head_ref }}"
+          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+          echo "\n"
+          echo "Github event -------------------"
+          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
+          echo "GITHUB_EVENT_PATH: ${{ github.event_name }}"
+          echo "GITHUB_EVENT_REF: ${{ github.event.ref }}"
+          echo "\n"
+          echo "GITHUB_REPOSITORY: ${{ github.repository }}"
+          echo "GITHUB_ACTION: ${{ github.action }}"
+          echo "GITHUB_ACTOR: ${{ github.actor }}"
+          echo "GITHUB_ACTOR_ID: ${{ github.actor_id }}"
+          echo "GITHUB_JOB: ${{ github.job }}"
+          echo "GITHUB_RUN_ID: ${{ github.run_id }}"
+          echo "GITHUB_RUN_NUMBER: ${{ github.run_number }}"
+          echo "GITHUB_SHA: ${{ github.sha }}"
+          echo "GITHUB_WORKFLOW: ${{ github.workflow }}"
+          echo "GITHUB_ENV: ${{ github.env }}"
+          echo "Release version: $RELEASE_VERSION"

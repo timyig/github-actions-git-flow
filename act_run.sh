@@ -6,12 +6,12 @@ if [ "$ACT" != true ]; then
     act --dryrun
 fi
 
-act --workflows .github/workflows/dev-pr.yml --actor timyig
+act --workflows .github/workflows/dev-pr.yml --actor $GITHUB_USER
 
 # Testing triggers
 echo "🧪🧪🧪 Testing Triggers 🧪🧪🧪"
 echo "This should not trigger the workflow"
-act release --workflows .github/workflows/dev-pr.yml --actor timyig
+act release --workflows .github/workflows/dev-pr.yml --actor $GITHUB_USER
 echo "This should trigger the workflow"
-act pull_request --workflows .github/workflows/dev-pr.yml --actor timyig
-act pull_request --workflows .github/workflows/dev-pr.yml --actor timyig --eventpath .github/workflows/act/event-dev-pr.json
+act pull_request --workflows .github/workflows/dev-pr.yml --actor $GITHUB_USER
+act pull_request --workflows .github/workflows/dev-pr.yml --actor $GITHUB_USER --eventpath .github/workflows/act/event-dev-pr.json
