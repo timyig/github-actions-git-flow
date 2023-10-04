@@ -15,6 +15,7 @@ RESULT=$(act push --workflows .github/workflows/release.yml --secret GITHUB_TOKE
 if [[ ${RESULT,,} == *"failure"* ]]; then
   echo "❌ Release workflow: The run failed"
   echo -e "Result of run: \n ${RESULT}"
+  exit 1
 else
   echo "✅ Release workflow"
 fi
@@ -27,4 +28,5 @@ if [[ ${RESULT,,} == *"Error"* || ${RESULT,,} == *"failure"*  ]]; then
 else
   echo "❌ Release workflow: The did not fail"
   echo -e "Result of run: \n ${RESULT}"
+  exit 1
 fi
