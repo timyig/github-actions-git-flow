@@ -10,7 +10,7 @@ fi
 echo "🧪🧪🧪 Testing Triggers 🧪🧪🧪"
 echo "Github user var: ${GITHUB_USER}"
 echo "❓ Check if version is set"
-RESULT=$(act push --workflows .github/workflows/release.yml --actor $GITHUB_USER --eventpath .github/workflows/act/event-release.json  2>&1)
+RESULT=$(act push --workflows .github/workflows/release.yml --secret GITHUB_TOKEN=${GITHUB_TOKEN} --actor $GITHUB_USER --eventpath .github/workflows/act/event-release.json  2>&1)
 # This test should not return an error
 if [[ ${RESULT,,} == *"failure"* ]]; then
   echo "❌ Release workflow: The run failed"
@@ -20,7 +20,7 @@ else
 fi
 
 echo "❓ Check if we catch no versions set"
-RESULT=$(act push --workflows .github/workflows/release.yml --actor $GITHUB_USER --eventpath .github/workflows/act/event-release-error.json  2>&1)
+RESULT=$(act push --workflows .github/workflows/release.yml --secret GITHUB_TOKEN=${GITHUB_TOKEN} --actor $GITHUB_USER --eventpath .github/workflows/act/event-release-error.json  2>&1)
 # This should fail
 if [[ ${RESULT,,} == *"Error"* || ${RESULT,,} == *"failure"*  ]]; then
   echo "✅ Release workflow successfully failed"
