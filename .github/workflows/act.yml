@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup act
-        if: ${{ env.ACT }}
         run: |
           cd /
           curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
