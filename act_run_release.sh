@@ -9,7 +9,12 @@ fi
 # Testing triggers
 echo "🧪🧪🧪 Testing Triggers 🧪🧪🧪"
 echo "Github user var: ${GITHUB_USER}"
-GITHUB_TOKEN="$(gh auth token)"
+if [ -z "$GITHUB_TOKEN" ]; then
+    GITHUB_TOKEN=$GITHUB_TOKEN
+else
+  GITHUB_TOKEN=$GH_TOKEN
+fi
+
 echo "❓ Check if version is set"
 RESULT=$(act push --workflows .github/workflows/release.yml --secret GITHUB_TOKEN=${GITHUB_TOKEN} --actor $GITHUB_USER --eventpath .github/workflows/act/event-release.json  2>&1)
 # This test should not return an error

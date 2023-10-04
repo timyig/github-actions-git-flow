@@ -51,7 +51,7 @@ jobs:
         run: |
           echo "Open PR to main"
           gh --version
-          gh api -X GET /repos/timyig/github-actions-git-flow
+          gh api -X GET "/repos/${{ github.repository }}"
 
       - name: Test
         run: |
