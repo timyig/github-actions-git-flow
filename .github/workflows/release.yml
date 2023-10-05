@@ -16,7 +16,8 @@ jobs:
   release-flow:
     runs-on:
       ubuntu-latest
-    permissions: write-all
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Checkout code
