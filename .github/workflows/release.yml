@@ -65,7 +65,9 @@ jobs:
           git add release.txt
           git commit -m "$message"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git push
+          if [!ACT] ; then
+            git push
+          fi
 
       - name: Test
         run: |
