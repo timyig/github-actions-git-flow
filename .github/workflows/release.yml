@@ -10,7 +10,7 @@ on:
     branches:
       - 'release-v*'
 env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_USER: "${{ github.actor }}"
 
 jobs:
   release-flow:
@@ -24,11 +24,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Prepare Enviornment
+        id: set_enviornment
+        run: |
+          set -e
+          # Ensure enough space is available for build
+          sudo apt-get autoremove -y
+          sudo apt-get clean -y
+          # Exporting the Enviornment variables, this way we can use the same commands localy
+          echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
+
       - name: Get release version
         run: |
           RELEASE_VERSION=$(echo "$GITHUB_REF" | sed 's/refs\/heads\/release-//')
           # Check if Version is retrieved correctly
-          if [ -z "$RELEASE_VERSION" ] || [[ ! "$RELEASE_VERSION" =~ ^v[0-9] ]]; then
+          if [ -z "$RELEASE_VERSION" ] || [ ! "$RELEASE_VERSION" =~ ^v[0-9] ] ; then
             echo "RELEASE_VERSION is not set"
             exit 1
           else
@@ -56,7 +66,6 @@ jobs:
           set -e
           echo "Open PR to main"
           gh --version
-          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           curl --request GET --url "https://api.github.com/octocat" --header "Authorization: Bearer $GITHUB_TOKEN" --header "X-GitHub-Api-Version: 2022-11-28"
           # Configure git and Push updates
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -65,7 +74,7 @@ jobs:
           message="Update Release Branch for ${RELEASE_VERSION}"
           git add release.txt
           git commit -m "$message"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           if [ -z "$ACT"] ; then
             git push
             gh pr create \
