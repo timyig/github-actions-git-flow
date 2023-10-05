@@ -5,7 +5,8 @@ name: Run-act-commands
 
 on:
   push:
-
+env:
+  GITHUB_USER: "${{ github.actor }}"
 jobs:
   run-act:
     runs-on:
@@ -14,6 +15,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Prepare Enviornment
+        id: set_enviornment
+        run: |
+          set -e
+          # Ensure enough space is available for build
+          sudo apt-get autoremove -y
+          sudo apt-get clean -y
+          # Exporting the Enviornment variables
+          echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
 
       - name: Setup act
         run: |
@@ -21,13 +31,11 @@ jobs:
           curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
           act --version
 
-      - name: run-act-run-script
+      - name: act-run-script
         run: |
-          export GITHUB_USER=${{ github.actor }}
+          echo "GITHUB_USER: ${GITHUB_USER}"
           ./act_run.sh
 
-      - name: run-act-release-script
+      - name: act-run-release-script
         run: |
-          export GITHUB_USER=${{ github.actor }}
-          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           ./act_run_release.sh
