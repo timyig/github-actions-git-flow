@@ -69,8 +69,8 @@ jobs:
           if [ -z "$ACT"] ; then
             git push
             gh pr create \
-            --base branch ${{ github.ref_name }} \
-            --head branch main \
+            --base ${{ github.ref_name }} \
+            --head main \
             --title 'Merge branch_to_merge into base_branch' \
             --body 'Created by Github action'
           fi
