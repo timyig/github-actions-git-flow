@@ -93,7 +93,6 @@ jobs:
           echo "GITHUB_REPOSITORY: ${{ github.repository }}"
           echo "GITHUB_ACTION: ${{ github.action }}"
           echo "GITHUB_ACTOR: ${{ github.actor }}"
-          echo "GITHUB_ACTOR_ID: ${{ github.actor_id }}"
           echo "GITHUB_JOB: ${{ github.job }}"
           echo "GITHUB_RUN_ID: ${{ github.run_id }}"
           echo "GITHUB_RUN_NUMBER: ${{ github.run_number }}"
