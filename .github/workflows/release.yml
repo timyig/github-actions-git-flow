@@ -16,6 +16,8 @@ jobs:
   release-flow:
     runs-on:
       ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -51,6 +53,10 @@ jobs:
         run: |
           echo "Open PR to main"
           gh --version
+          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          echo actionnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+          printenv | grep TOKEN
+          echo actionnnnnnnnnnnnnnnnnnnnnnnnnnnnn
           gh api -X GET "/repos/${{ github.repository }}"
 
       - name: Test

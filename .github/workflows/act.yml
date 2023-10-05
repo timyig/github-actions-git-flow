@@ -29,4 +29,5 @@ jobs:
       - name: run-act-release-script
         run: |
           export GITHUB_USER=${{ github.actor }}
+          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           ./act_run_release.sh

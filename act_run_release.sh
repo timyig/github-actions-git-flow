@@ -8,11 +8,22 @@ fi
 
 # Testing triggers
 echo "🧪🧪🧪 Testing Triggers 🧪🧪🧪"
-echo "Github user var: ${GITHUB_USER}"
-if [ -z "$GITHUB_TOKEN" ]; then
-    GITHUB_TOKEN=$GITHUB_TOKEN
+echo "GITHUB Env variables"
+ printenv | grep GITHUB_
+if [ -z "$GITHUB_TOKEN" ] && [ -z "$GH_TOKEN" ]; then
+  echo "❌ GITHUB_TOKEN is empty"
+  printenv | grep GITHUB_
+  exit 1
 else
-  GITHUB_TOKEN=$GH_TOKEN
+  echo "Found GITHUB_TOKEN"
+fi
+
+if [ -n "$GITHUB_TOKEN" ]; then
+  echo "Exporting GITHUB_TOKEN"
+  export GITHUB_TOKEN=$GITHUB_TOKEN
+else
+  echo "Exporting GH_TOKEN"
+  export GITHUB_TOKEN=$GH_TOKEN
 fi
 
 echo "❓ Check if version is set"
