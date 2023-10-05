@@ -74,7 +74,7 @@ jobs:
             /repos/${{ github.repository }} \
             -f title='Amazing new feature' \
             -f body='Please pull these awesome changes in!' \
-            -f head=${{ github.ref }} \
+            -f head=${{ github.ref_name }} \
             -f base='main'
           fi
 
