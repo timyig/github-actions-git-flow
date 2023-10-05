@@ -21,12 +21,13 @@ jobs:
           curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
           act --version
 
-      # - name: run-act-run-script
-      #   run: |
-      #     act --version
-      #     ./act_run.sh
+      - name: run-act-run-script
+        run: |
+          export GITHUB_USER=${{ github.actor }}
+          ./act_run.sh
 
       - name: run-act-release-script
         run: |
           export GITHUB_USER=${{ github.actor }}
+          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           ./act_run_release.sh
