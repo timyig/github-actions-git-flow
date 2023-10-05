@@ -71,7 +71,7 @@ jobs:
             gh pr create \
             --head ${{ github.ref_name }} \
             --base main \
-            --title 'Merge branch_to_merge into base_branch' \
+            --title "$message" \
             --body 'Created by Github action'
           fi
 
