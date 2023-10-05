@@ -39,6 +39,7 @@ jobs:
       - name: Bump version
         run: |
           echo "Release version: $RELEASE_VERSION" > release.txt
+          date +%s >> release.txt
 
       - name: Setup Github CLI
         if: ${{ env.ACT }}
@@ -67,15 +68,11 @@ jobs:
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           if [ -z "$ACT"] ; then
             git push
-            gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/${{ github.repository }} \
-            -f title='Amazing new feature' \
-            -f body='Please pull these awesome changes in!' \
-            -f head=${{ github.ref_name }} \
-            -f base='main'
+            gh pr create \
+            --base branch ${{ github.ref_name }} \
+            --head branch main \
+            --title 'Merge branch_to_merge into base_branch' \
+            --body 'Created by Github action'
           fi
 
       - name: Test
