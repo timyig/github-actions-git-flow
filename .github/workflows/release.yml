@@ -36,9 +36,10 @@ jobs:
 
       - name: Get release version
         run: |
-          RELEASE_VERSION=$(echo "$GITHUB_REF" | sed 's/refs\/heads\/release-//')
+          echo "Retrieve the Release Version"
+          RELEASE_VERSION=$(echo "$GITHUB_REF" | grep -oP "(?<=^refs/heads/release-)v[0-9]+\.[0-9]+")
           # Check if Version is retrieved correctly
-          if [ -z "$RELEASE_VERSION" ] || [ ! "$RELEASE_VERSION" =~ ^v[0-9] ] ; then
+          if [[ -z "$RELEASE_VERSION" || ! "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+$ ]]; then
             echo "RELEASE_VERSION is not set"
             exit 1
           else
@@ -75,7 +76,7 @@ jobs:
           git add release.txt
           git commit -m "$message"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          if [ -z "$ACT"] ; then
+          if [ -z "$ACT" ] ; then
             git push
             gh pr create \
             --head ${{ github.ref_name }} \
