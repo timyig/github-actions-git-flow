@@ -24,6 +24,7 @@ jobs:
           sudo apt-get clean -y
           # Exporting the Enviornment variables
           echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
 
       - name: Setup act
         run: |
