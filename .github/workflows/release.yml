@@ -9,6 +9,10 @@ on:
   push:
     branches:
       - 'release-v*'
+  pull_request:
+    branches:
+      - 'dev'
+
 env:
   GITHUB_USER: "${{ github.actor }}"
 
@@ -34,6 +38,20 @@ jobs:
           # Exporting the Enviornment variables, this way we can use the same commands localy
           echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "GITHUB_EVENT_NAME: ${{ github.event }}"
+          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
+          echo "GITHUB_EVENT_PATH: ${{ github.event_name }}"
+          echo "GITHUB_EVENT_REF: ${{ github.event.ref }}"
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
+          echo "GITHUB_REF_TYPE: ${{ github.ref_type }}"
+          echo "GITHUB_HEAD_REF: ${{ github.head_ref }}"
+          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+          echo "GITHUB_ACTIONS: ${{ github.action }}"
+          echo "GITHUB_EVENT_PATH content"
+          echo "printenv"
+          printenv
+          cat $GITHUB_EVENT_PATH
 
       - name: Get release version
         run: |
@@ -97,6 +115,7 @@ jobs:
           echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
           echo "\n"
           echo "Github event -------------------"
+          echo "GITHUB_EVENT_NAME: ${{ github.event }}"
           echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
           echo "GITHUB_EVENT_PATH: ${{ github.event_name }}"
           echo "GITHUB_EVENT_REF: ${{ github.event.ref }}"
