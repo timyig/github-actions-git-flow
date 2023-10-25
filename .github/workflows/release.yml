@@ -1,4 +1,10 @@
 # Runs the release workflow when a release-* branch is pushed
+# This workflow can run in three scenarios. To cater for different scenarios
+# The step "Prepare Environment" is in place where ENV variables are set accordingly
+# 1. As intended when there is a push to a new realease branch
+# 2. During local developemnt using ACT
+# - In the step "Prepare Environment" 
+# 3. In Github Actions on the PR to dev trigger
 # - Bump version
 # - Build -> Test -> Publish
 # Tag -> Open PR to main - Push
@@ -36,10 +42,16 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean -y
           # Exporting the Environment variables.
+          # GITHUB_USER
+          # GITHUB_TOKEN
+          # RELEASE_VERSION
+          # _GITHUB_REF_NAME
+          # _GITHUB_BASE
           # This way we don't need the context access.
           echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          #Check if this was triggered by a PR to dev and not actual release
+          # Check if this was triggered by a PR to dev or run in ACT and not actual release
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
           if [[ "$GITHUB_EVENT_NAME" = 'pull_request' && "$GITHUB_BASE_REF" = 'dev' ]] ; then
             echo "Running release CI, setting mock release version"
             RELEASE_VERSION="v0.001"
@@ -49,33 +61,26 @@ jobs:
             _GITHUB_REF_NAME="act-${BRANCH}-${DATETIME}"
             _GITHUB_BASE="act-main"
             MOCK_MAIN_EXISTS=$(git ls-remote --heads origin --refs $_GITHUB_BASE | wc -l)
-            if [ $MOCK_MAIN_EXISTS != 0] ; then
+            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+            echo "MOCK_MAIN_EXISTS: $MOCK_MAIN_EXISTS"
+            if [ $MOCK_MAIN_EXISTS != 0 ] ; then
               echo "Removing old act-main branch"
-              git push origin --delete "$_GITHUB_BASE"
+              git push origin --delete --force "$_GITHUB_BASE"
             fi
             echo "Creating act-main from main branch"
             git fetch origin main
+            # git stash is needed when running this while changes are not commited yet
+            git stash
             git checkout -b act-main origin/main
+            git push --set-upstream origin "$_GITHUB_BASE"
             echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+            git checkout $BRANCH
           else
             _GITHUB_BASE="act-main"
             _GITHUB_REF_NAME="${{ github.ref_name }}"
           fi
           echo "_GITHUB_REF_NAME=${_GITHUB_REF_NAME}" >> $GITHUB_ENV
           echo "_GITHUB_BASE=${_GITHUB_BASE}" >> $GITHUB_ENV
-          echo "GITHUB_EVENT: ${{ github.event }}"
-          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
-          echo "GITHUB_EVENT_REF: ${{ github.event.ref }}"
-          echo "GITHUB_REF: ${{ github.ref }}"
-          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
-          echo "GITHUB_REF_TYPE: ${{ github.ref_type }}"
-          echo "GITHUB_HEAD_REF: ${{ github.head_ref }}"
-          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
-          echo "GITHUB_ACTIONS: ${{ github.action }}"
-          echo "GITHUB_EVENT_PATH content"
-          echo "printenv"
-          printenv | grep GITHUB_
-          cat $GITHUB_EVENT_PATH
 
       - name: Get release version
         run: |
@@ -115,7 +120,7 @@ jobs:
           set -e
           echo "Open PR to main"
           gh --version
-          # curl --request GET --url "https://api.github.com/octocat" --header "Authorization: Bearer $GITHUB_TOKEN" --header "X-GitHub-Api-Version: 2022-11-28"
+          curl --request GET --url "https://api.github.com/octocat" --header "Authorization: Bearer $GITHUB_TOKEN" --header "X-GitHub-Api-Version: 2022-11-28"
           # Configure git and Push updates
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git config --global user.name 'github-actions[bot]'
@@ -125,40 +130,24 @@ jobs:
             echo "Branch: $_GITHUB_REF_NAME"
             git switch -c "$_GITHUB_REF_NAME"
             git fetch
-            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           fi
+          echo "git add"
           git add release.txt
+          echo "git commit"
           git commit -m "$message"
-          git push --set-upstream origin "$_GITHUB_REF_NAME"
-          gh pr create \
-            --head ${_GITHUB_REF_NAME} \
-            --base ${_GITHUB_BASE} \
-            --title "$message" \
-            --body 'Created by Github action'
+          echo "git push"
+          git branch
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          if [[ -z $ACT ]]; then
+            git push --set-upstream origin "$_GITHUB_REF_NAME"
+            gh pr create \
+              --head ${_GITHUB_REF_NAME} \
+              --base ${_GITHUB_BASE} \
+              --title "$message" \
+              --body 'Created by Github action'
+          fi
 
       - name: Test
         run: |
           echo "Printing some ENV Vars for testing"
-          echo "Github ref -------------------"
-          echo "GITHUB_REF: ${{ github.ref }}"
-          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
-          echo "GITHUB_REF_TYPE: ${{ github.ref_type }}"
-          echo "GITHUB_HEAD_REF: ${{ github.head_ref }}"
-          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
-          echo "\n"
-          echo "Github event -------------------"
-          echo "GITHUB_EVENT_NAME: ${{ github.event }}"
-          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
-          echo "GITHUB_EVENT_PATH: ${{ github.event_name }}"
-          echo "GITHUB_EVENT_REF: ${{ github.event.ref }}"
-          echo "\n"
-          echo "GITHUB_REPOSITORY: ${{ github.repository }}"
-          echo "GITHUB_ACTION: ${{ github.action }}"
-          echo "GITHUB_ACTOR: ${{ github.actor }}"
-          echo "GITHUB_JOB: ${{ github.job }}"
-          echo "GITHUB_RUN_ID: ${{ github.run_id }}"
-          echo "GITHUB_RUN_NUMBER: ${{ github.run_number }}"
-          echo "GITHUB_SHA: ${{ github.sha }}"
-          echo "GITHUB_WORKFLOW: ${{ github.workflow }}"
-          echo "GITHUB_ENV: ${{ github.env }}"
-          echo "Release version: $RELEASE_VERSION"
+          printenv | grep GITHUB_
