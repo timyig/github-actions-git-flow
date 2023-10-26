@@ -112,15 +112,17 @@ jobs:
           git config pull.rebase false
           message="Update Release Branch for ${RELEASE_VERSION}"
           git add release.txt
-          echo "git commit"
+          echo "running: git commit"
           git commit -m "$message"
-          echo "git push"
+          echo "running: git branch"
           git branch
+          echo "running: git remote set-url origin"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          echo "running: git push"
           git push --set-upstream origin "$_GITHUB_REF_NAME"
+          echo "running: gh pr create"
           gh pr create \
             --head ${_GITHUB_REF_NAME} \
             --base ${_GITHUB_BASE} \
             --title "$message" \
             --body 'Created by Github action'
-
