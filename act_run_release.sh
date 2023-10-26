@@ -48,7 +48,7 @@ if [[ ${RESULT,,} == *"failure"* || ${RESULT,,} == *"error"* ]]; then
   exit 1
 else
   echo "✅ Release workflow"
-  # echo "$RESULT" | grep -o "Release version: [^ ]*"
+  echo "$RESULT" | grep -o "RELEASE_VERSION: [^ ]*"
   echo "$RESULT"
 fi
 
@@ -67,9 +67,3 @@ else
   echo -e "Result of run: \n ${RESULT}"
   exit 1
 fi
-
-act pull_request \
---workflows .github/workflows/release.yml \
---secret GITHUB_TOKEN=${GITHUB_TOKEN} \
---actor $GITHUB_USER \
---eventpath .github/workflows/act/event-dev-pr-release.json
