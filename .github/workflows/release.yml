@@ -1,0 +1,129 @@
+# Runs the release workflow when a release-* branch is pushed
+# This workflow can run in three scenarios. To cater for different scenarios
+# The step "Prepare Environment" is in place where ENV variables are set accordingly
+# 1. As intended when there is a push to a new realease branch
+# 2. During local developemnt using ACT
+# - In the step "Prepare Environment" 
+# 3. In Github Actions on the PR to dev trigger
+# - Bump version
+# - Build -> Test -> Publish
+# Tag -> Open PR to main - Push
+
+name: Create Release
+
+on:
+  push:
+    branches:
+      - 'release-v*'
+
+env:
+  GITHUB_USER: "${{ github.actor }}"
+
+jobs:
+  release-flow:
+    runs-on:
+      ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get release version
+        run: |
+          echo "Retrieve the Release Version"
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          RELEASE_VERSION=$(echo "$GITHUB_REF" | grep -oP "(?<=^refs/heads/release-)v[0-9]+\.[0-9]+")
+          # Check if Version is retrieved correctly
+          if [[ -z "$RELEASE_VERSION" || ! "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+            echo "RELEASE_VERSION is not set"
+            exit 1
+          else
+            echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          fi
+          echo "RELEASE_VERSION: $RELEASE_VERSION"
+
+      - name: Prepare Environment
+        id: set_environment
+        run: |
+          set -e
+          # Ensure enough space is available for build
+          sudo apt-get autoremove -y
+          sudo apt-get clean -y
+          # Exporting the Environment variables.
+          # This way we don't need the context access.
+          echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          _GITHUB_BASE="main"
+          _GITHUB_REF_NAME="${{ github.ref_name }}"
+          # Check if this was triggered by a PR or run in ACT
+          if [[ "$ACT" == 'true' ]]; then
+            echo "Running release workflow in ACT, setting mock release version"
+            RELEASE_VERSION="v0.001-mock"
+            # Workaround because when running in act GITHUB_REF_NAME is the name of the PR
+            _GITHUB_REF_NAME=$(git rev-parse --abbrev-ref HEAD)
+            _GITHUB_BASE="act-main"
+            MOCK_MAIN_EXISTS=$(git ls-remote --heads origin --refs $_GITHUB_BASE | wc -l)
+            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+            echo "MOCK_MAIN_EXISTS: $MOCK_MAIN_EXISTS"
+            if [ $MOCK_MAIN_EXISTS != 0 ] ; then
+              echo "Removing old act-main branch"
+              git push origin --delete --force "$_GITHUB_BASE"
+            fi
+            echo "Creating act-main from main branch"
+            git fetch origin main
+            # git stash is needed when running this while changes are not commited yet
+            git stash
+            git checkout -b $_GITHUB_BASE origin/main
+            git push --set-upstream origin "$_GITHUB_BASE"
+            # Make sure the mock-main branch exists on the remote
+            echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+            git checkout $BRANCH
+          # Export Base and HEAD Branch
+          fi
+          echo "_GITHUB_REF_NAME=${_GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "_GITHUB_BASE=${_GITHUB_BASE}" >> $GITHUB_ENV
+
+      - name: Bump version
+        run: |
+          echo "Release version: $RELEASE_VERSION" > release.txt
+          date +%s >> release.txt
+
+      - name: Setup Github CLI
+        if: ${{ env.ACT }}
+        run: |
+          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
+
+      - name: Create PR to main
+        run: |
+          set -e
+          echo "Open PR to main"
+          gh --version
+          curl --request GET --url "https://api.github.com/octocat" --header "Authorization: Bearer $GITHUB_TOKEN" --header "X-GitHub-Api-Version: 2022-11-28"
+          # Configure git and Push updates
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config pull.rebase false
+          message="Update Release Branch for ${RELEASE_VERSION}"
+          git add release.txt
+          echo "running: git commit"
+          git commit -m "$message"
+          echo "running: git branch"
+          git branch
+          echo "running: git remote set-url origin"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          echo "running: git push"
+          git push --set-upstream origin "$_GITHUB_REF_NAME"
+          echo "running: gh pr create --head ${_GITHUB_REF_NAME} --base ${_GITHUB_BASE} --title $message --body 'Created by Github action'"
+          gh pr create \
+            --head ${_GITHUB_REF_NAME} \
+            --base ${_GITHUB_BASE} \
+            --title "$message" \
+            --body 'Created by Github action'

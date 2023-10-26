@@ -1,0 +1,46 @@
+# Workflow that runs on every push.
+# Sanity check to make sure act commands are running
+# act -W .github/workflows/act.yml --actor $GITHUB_USER --secret GITHUB_TOKEN=${GITHUB_TOKEN}
+
+name: Run-act-commands
+
+on:
+  push:
+    branches:
+      - 'fix-*'
+      - 'feat-*'
+env:
+  GITHUB_USER: "${{ github.actor }}"
+jobs:
+  run-act:
+    runs-on:
+      ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Prepare Enviornment
+        id: set_enviornment
+        run: |
+          set -e
+          # Ensure enough space is available for build
+          sudo apt-get autoremove -y
+          sudo apt-get clean -y
+          # Exporting the Enviornment variables
+          echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Setup act
+        run: |
+          cd /
+          curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+          act --version
+
+      - name: act-run-script
+        run: |
+          echo "GITHUB_USER: ${GITHUB_USER}"
+          ./act_run.sh
+
+      - name: act-run-release-script
+        run: |
+          ./act_run_release.sh
