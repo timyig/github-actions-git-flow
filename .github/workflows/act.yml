@@ -6,6 +6,9 @@ name: Run-act-commands
 
 on:
   push:
+    branches:
+      - 'fix-*'
+      - 'feat-*'
 env:
   GITHUB_USER: "${{ github.actor }}"
 jobs:
