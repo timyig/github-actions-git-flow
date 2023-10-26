@@ -56,6 +56,7 @@ jobs:
           # This way we don't need the context access.
           echo "GITHUB_USER=${{ env.GITHUB_USER }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          _GITHUB_BASE="main"
           _GITHUB_REF_NAME="${{ github.ref_name }}"
           # Check if this was triggered by a PR or run in ACT
           if [[ "$ACT" == 'true' ]]; then
@@ -120,7 +121,7 @@ jobs:
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           echo "running: git push"
           git push --set-upstream origin "$_GITHUB_REF_NAME"
-          echo "running: gh pr create"
+          echo "running: gh pr create --head ${_GITHUB_REF_NAME} --base ${_GITHUB_BASE} --title $message --body 'Created by Github action'"
           gh pr create \
             --head ${_GITHUB_REF_NAME} \
             --base ${_GITHUB_BASE} \
