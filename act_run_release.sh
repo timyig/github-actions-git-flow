@@ -48,7 +48,8 @@ if [[ ${RESULT,,} == *"failure"* || ${RESULT,,} == *"error"* ]]; then
   exit 1
 else
   echo "✅ Release workflow"
-  echo "$RESULT" | grep -o "Release version: [^ ]*"
+  echo "$RESULT" | grep -o "RELEASE_VERSION: [^ ]*"
+  echo "$RESULT"
 fi
 
 echo "❓ Check if we catch no version set"

@@ -1,5 +1,6 @@
 # Workflow that runs on every push.
 # Sanity check to make sure act commands are running
+# act -W .github/workflows/act.yml --actor $GITHUB_USER --secret GITHUB_TOKEN=${GITHUB_TOKEN}
 
 name: Run-act-commands
 
